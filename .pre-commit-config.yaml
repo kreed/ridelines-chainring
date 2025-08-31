@@ -1,0 +1,30 @@
+repos:
+  # Biome for linting and formatting
+  - repo: local
+    hooks:
+      - id: biome-format
+        name: biome format
+        entry: npm run format
+        language: system
+        files: \.(js|ts|jsx|tsx)$
+        pass_filenames: false
+  # Run tests
+  - repo: local
+    hooks:
+      - id: test-unit
+        name: unit tests
+        entry: npm run test
+        language: system
+        files: \.(js|ts|jsx|tsx)$
+        pass_filenames: false
+        stages: [pre-push]
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
