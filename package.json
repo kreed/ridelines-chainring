@@ -14,8 +14,8 @@
   },
   "scripts": {
     "dev": "tsx watch scripts/dev-server.ts",
-    "build": "npm run codegen && tsdown",
-    "codegen": "openapi-typescript extern/intervals-openapi.json -o src/generated/intervals-types.ts",
+    "prepare": "openapi-typescript extern/intervals-openapi.json -o src/generated/intervals-types.ts",
+    "build": "tsdown",
     "test": "node --test",
     "type-check": "tsc --noEmit",
     "lint": "biome check .",
