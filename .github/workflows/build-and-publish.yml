@@ -1,0 +1,189 @@
+name: Build and Publish Chainring
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'LICENSE'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: kreed/ridelines-chainring
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test TypeScript Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run check
+
+      - name: Run tests
+        run: npm run test
+
+  build:
+    name: Build Lambda Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Get chainring commit SHA
+        run: |
+          COMMIT_SHA=$(git rev-parse HEAD)
+          echo "${COMMIT_SHA}" > .git-sha
+          echo "Chainring commit SHA: ${COMMIT_SHA}"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-artifacts
+          path: .
+          retention-days: 1
+
+  publish-docker:
+    name: Publish Docker Package
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-artifacts
+          path: .
+
+      - name: Read chainring commit SHA
+        id: chainring_sha
+        run: |
+          COMMIT_SHA=$(cat .git-sha)
+          echo "sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+          echo "Chainring commit SHA: ${COMMIT_SHA}"
+
+      - name: Create Lambda deployment package
+        run: |
+          cd dist
+          zip ../chainring-lambda.zip index.js index.js.map
+          cd ..
+
+      - name: Create Lambda Dockerfile
+        run: |
+          cat > Dockerfile.lambda << 'EOF'
+          FROM scratch
+          COPY chainring-lambda.zip /chainring-lambda-package.zip
+          EOF
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Lambda
+        id: meta-lambda
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Lambda container image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.lambda
+          push: true
+          tags: ${{ steps.meta-lambda.outputs.tags }}
+          labels: |
+            ${{ steps.meta-lambda.outputs.labels }}
+            ridelines.chainring.commit=${{ steps.chainring_sha.outputs.sha }}
+
+      - name: Lambda package summary
+        run: |
+          echo "## Chainring Docker Package Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Lambda deployment package built successfully" >> $GITHUB_STEP_SUMMARY
+          
+          # Add package size info
+          size=$(du -h "artifacts/chainring-lambda.zip" 2>/dev/null | cut -f1 || echo "?")
+          echo "  - chainring-lambda - ${size} (tRPC API endpoints)" >> $GITHUB_STEP_SUMMARY
+          
+          echo >> $GITHUB_STEP_SUMMARY
+          echo "✅ Container image published to registry" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Package: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "🏷️ Tags: " >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta-lambda.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+  publish-npm:
+    name: Publish NPM Package
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-artifacts
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: NPM package summary
+        run: |
+          echo "## Chainring NPM Package Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ NPM package published to GitHub Packages" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Package: @kreed/ridelines-chainring" >> $GITHUB_STEP_SUMMARY

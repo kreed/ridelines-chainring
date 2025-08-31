@@ -1,0 +1,56 @@
+{
+  "name": "@kreed/ridelines-chainring",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "backend API for ridelines.xyz - map for all your intervals.icu activities",
+  "main": "dist/index.js",
+  "types": "src/types.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kreed/ridelines-chainring.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "dev": "tsx watch scripts/dev-server.ts",
+    "build": "npm run codegen && tsdown",
+    "codegen": "openapi-typescript extern/intervals-openapi.json -o src/generated/intervals-types.ts",
+    "test": "node --test",
+    "type-check": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --fix .",
+    "check": "npm run type-check && npm run lint"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^2.25.2",
+    "@aws-lambda-powertools/metrics": "^2.25.2",
+    "@aws-lambda-powertools/tracer": "^2.25.2",
+    "@aws-sdk/client-dynamodb": "^3.490.0",
+    "@aws-sdk/lib-dynamodb": "^3.490.0",
+    "@clerk/backend": "^2.10.1",
+    "@middy/core": "^6.4.4",
+    "@trpc/server": "^11",
+    "dotenv": "^17.2.1",
+    "openapi-fetch": "^0.14.0",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.2",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^22.0.0",
+    "openapi-typescript": "^7.9.1",
+    "tsdown": "^0.14.2",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "ridelines",
+    "trpc",
+    "lambda",
+    "api"
+  ],
+  "author": "Chris Eby",
+  "license": "MIT"
+}
