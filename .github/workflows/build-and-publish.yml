@@ -177,6 +177,19 @@ jobs:
           node-version: '22'
           registry-url: 'https://npm.pkg.github.com'
 
+      - name: Generate version
+        id: version
+        run: |
+          # Read base version from package.json
+          BASE_VERSION=$(node -p "require('./package.json').version")
+          # Add timestamp suffix to ensure uniqueness
+          VERSION="${BASE_VERSION}-$(date +%Y%m%d%H%M%S)"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Generated version: ${VERSION}"
+
+          # Update package.json with new version
+          npm version ${VERSION} --no-git-tag-version
+
       - name: Publish to GitHub Packages
         run: npm publish
         env:
@@ -186,4 +199,4 @@ jobs:
         run: |
           echo "## Chainring NPM Package Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "✅ NPM package published to GitHub Packages" >> $GITHUB_STEP_SUMMARY
-          echo "📦 Package: @kreed/ridelines-chainring" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Package: @kreed/ridelines-chainring@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
