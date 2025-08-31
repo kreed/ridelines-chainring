@@ -72,7 +72,7 @@ jobs:
       - name: Get chainring commit SHA
         run: |
           COMMIT_SHA=$(git rev-parse HEAD)
-          echo "${COMMIT_SHA}" > .git-sha
+          echo "${COMMIT_SHA}" > git-sha
           echo "Chainring commit SHA: ${COMMIT_SHA}"
 
       - name: Upload build artifacts
@@ -98,7 +98,7 @@ jobs:
       - name: Read chainring commit SHA
         id: chainring_sha
         run: |
-          COMMIT_SHA=$(cat .git-sha)
+          COMMIT_SHA=$(cat git-sha)
           echo "sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
           echo "Chainring commit SHA: ${COMMIT_SHA}"
 
