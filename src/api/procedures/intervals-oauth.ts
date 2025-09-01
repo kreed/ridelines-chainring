@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createIntervalsClient } from "../../clients/intervals";
 import { publicProcedure } from ".";
 
-export const intervalsOAuthCallback = publicProcedure.query(async ({ ctx }) => {
+const userInfo = publicProcedure.query(async ({ ctx }) => {
   if (!ctx.authHeader) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -49,3 +49,7 @@ export const intervalsOAuthCallback = publicProcedure.query(async ({ ctx }) => {
     website: profile.website,
   };
 });
+
+export const intervalsOAuth = {
+  userInfo
+}
