@@ -2,7 +2,7 @@ import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { dynamodb } from "../../clients/aws";
-import { env } from "../../env";
+import { env } from "../../types/env";
 import { procedure } from ".";
 
 export const UserSchema = z.object({

@@ -1,6 +1,6 @@
 import { createClerkClient } from "@clerk/backend";
 import { TRPCError } from "@trpc/server";
-import { env } from "../../env";
+import { env } from "../../types/env";
 import { createMiddleware } from "../../types/trpc";
 
 // Validates Clerk JWT token and adds userId to context
