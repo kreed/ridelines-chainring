@@ -12,6 +12,7 @@ import type { Handler } from "./types/lambda";
 export const createContext = async ({
   event,
 }: CreateAWSLambdaContextOptions<LambdaFunctionURLEventWithIAMAuthorizer>): Promise<Context> => {
+  logger.debug("Event:", JSON.stringify(event));
   const path = event.rawPath;
   const authHeader = event.headers.authorization || event.headers.Authorization;
   logger.appendKeys({ path });
