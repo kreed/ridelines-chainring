@@ -105,7 +105,7 @@ jobs:
       - name: Create Lambda deployment package
         run: |
           cd dist
-          zip ../chainring-lambda.zip index.js index.js.map
+          zip ../chainring-lambda.zip *
           cd ..
 
       - name: Create Lambda Dockerfile

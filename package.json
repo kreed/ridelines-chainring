@@ -1,9 +1,8 @@
 {
   "name": "@kreed/ridelines-chainring",
   "version": "1.0.0",
-  "type": "module",
   "description": "backend API for ridelines.xyz - map for all your intervals.icu activities",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "types": "src/types.ts",
   "repository": {
     "type": "git",
