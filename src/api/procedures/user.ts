@@ -10,6 +10,7 @@ export const UserSchema = z.object({
   athlete_id: z.string(),
   name: z.string().nullable(),
   email: z.string().nullable(),
+  pmtiles_url: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   last_login: z.string(),
@@ -31,5 +32,10 @@ export const user = procedure.output(UserSchema).query(async ({ ctx: { userId } 
     });
   }
 
-  return result.Item as User;
+  const pmtiles_url = "https://ridelines.xyz";
+
+  return {
+    ...result.Item,
+    pmtiles_url,
+  } as User;
 });
