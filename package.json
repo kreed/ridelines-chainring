@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "tsx watch scripts/dev-server.ts",
-    "postinstall": "openapi-typescript extern/intervals-openapi.json -o src/generated/intervals-types.ts",
+    "postinstall": "openapi-typescript extern/intervals-openapi.json -o src/generated/intervals-types.ts || echo ''",
     "build": "tsdown",
     "test": "node --test",
     "type-check": "tsc --noEmit",
