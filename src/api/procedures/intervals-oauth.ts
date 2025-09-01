@@ -51,5 +51,5 @@ const userInfo = publicProcedure.query(async ({ ctx }) => {
 });
 
 export const intervalsOAuth = {
-  userInfo
-}
+  userInfo,
+};

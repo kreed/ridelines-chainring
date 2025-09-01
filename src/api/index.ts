@@ -7,6 +7,6 @@ export const router = createRouter({
   user,
   syncStatus,
   intervals: {
-    oauth: intervalsOAuth
+    oauth: intervalsOAuth,
   },
 });
