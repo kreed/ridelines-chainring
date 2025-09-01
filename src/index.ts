@@ -14,7 +14,7 @@ export const createContext = async ({
 }: CreateAWSLambdaContextOptions<LambdaFunctionURLEventWithIAMAuthorizer>): Promise<Context> => {
   logger.debug("Event:", JSON.stringify(event));
   const path = event.rawPath;
-  const authHeader = event.headers.authorization || event.headers.Authorization;
+  const authHeader = event.headers["auth-token"];
   logger.appendKeys({ path });
   metrics.addDimensions({ path });
   return {
