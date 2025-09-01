@@ -1,5 +1,5 @@
 import { logger, metrics, tracer } from "../../clients/monitoring";
-import { createMiddleware } from "..";
+import { createMiddleware } from "../../types/trpc";
 
 export const monitoringMiddleware = createMiddleware(async ({ ctx, next }) => {
   // biome-ignore lint: middy middleware will have set the segment

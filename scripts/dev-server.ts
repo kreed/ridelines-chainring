@@ -1,9 +1,7 @@
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
-import dotenv from "dotenv";
 import { router } from "../src/api";
 import type { Context } from "../src/types/context";
 
-dotenv.config();
 // Development server for local testing
 const server = createHTTPServer({
   router,

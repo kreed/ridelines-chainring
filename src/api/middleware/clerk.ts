@@ -1,7 +1,7 @@
 import { createClerkClient } from "@clerk/backend";
 import { TRPCError } from "@trpc/server";
 import { env } from "../../env";
-import { createMiddleware } from "..";
+import { createMiddleware } from "../../types/trpc";
 
 // Validates Clerk JWT token and adds userId to context
 export const clerkMiddleware = createMiddleware(async ({ ctx, next }) => {

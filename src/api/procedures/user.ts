@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { dynamodb } from "../../clients/aws";
 import { env } from "../../env";
-import { procedure } from "..";
+import { procedure } from ".";
 
 export const UserSchema = z.object({
   id: z.string(),

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createIntervalsClient } from "../../clients/intervals";
-import { publicProcedure } from "..";
+import { publicProcedure } from ".";
 
 export const intervalsOAuthCallback = publicProcedure.query(async ({ ctx }) => {
   if (!ctx.authHeader) {
