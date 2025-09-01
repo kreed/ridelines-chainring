@@ -23,7 +23,23 @@ export const createContext = async ({
   };
 };
 
-export const handler: Handler = middy(awsLambdaRequestHandler({ router, createContext }))
+const trpcHandler: Handler = awsLambdaRequestHandler({ router, createContext });
+
+const customHandler: Handler = async (event, context) => {
+  const response = await trpcHandler(event, context);
+
+  // Clerk expects a flat object containing all the user info
+  if (event.rawPath === "/intervals.oauth.userInfo" && response.body) {
+    const parsed = JSON.parse(response.body);
+    if (parsed.result?.data) {
+      response.body = JSON.stringify(parsed.result.data);
+    }
+  }
+
+  return response;
+};
+
+export const handler: Handler = middy(customHandler)
   .use(captureLambdaHandler(tracer))
   .use(injectLambdaContext(logger, { resetKeys: true }))
   .use(logMetrics(metrics, { captureColdStartMetric: true }));
