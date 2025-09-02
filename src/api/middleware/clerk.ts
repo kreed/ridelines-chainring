@@ -19,13 +19,14 @@ export const clerkMiddleware = createMiddleware(async ({ ctx, next }) => {
     publishableKey: env.CLERK_PUBLISHABLE_KEY,
   });
 
-  const req = new Request(`https://${env.DOMAIN}`, {
+  const origin = `https://${env.DOMAIN}`;
+  const req = new Request(origin, {
     headers: { authorization: ctx.authHeader },
   });
 
   const result = await clerkClient.authenticateRequest(req, {
     jwtKey: env.CLERK_JWT_KEY,
-    authorizedParties: [env.DOMAIN],
+    authorizedParties: [origin],
   });
 
   if (!result.isAuthenticated) {
