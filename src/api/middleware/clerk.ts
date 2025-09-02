@@ -1,5 +1,6 @@
 import { createClerkClient } from "@clerk/backend";
 import { TRPCError } from "@trpc/server";
+import { logger } from "../../clients/monitoring";
 import { env } from "../../types/env";
 import { createMiddleware } from "../../types/trpc";
 
@@ -28,9 +29,10 @@ export const clerkMiddleware = createMiddleware(async ({ ctx, next }) => {
   });
 
   if (!result.isAuthenticated) {
+    logger.error(`Invalid JWT token. ${result.message} ${result.reason}`);
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "Invalid JWT token",
+      message: `Invalid JWT token`,
     });
   }
 
