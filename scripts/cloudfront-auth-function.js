@@ -23,30 +23,6 @@ function handler(event) {
   return request;
 }
 
-// Parse __session from Cookie header
-function readSessionCookie(headers) {
-  var cookieHeader = headers.cookie && headers.cookie.value;
-  if (!cookieHeader) return null;
-  var parts = String(cookieHeader).split(/;\s*/);
-  var i, k, kv;
-  for (i = 0; i < parts.length; i++) {
-    kv = parts[i].split("=");
-    k = kv[0];
-    if (k === "__session") {
-      return kv.slice(1).join("=");
-    }
-  }
-  return null;
-}
-
-function unauthorized() {
-  return {
-    statusCode: 401,
-    statusDescription: "Unauthorized",
-    headers: { "www-authenticate": { value: "Bearer" } },
-  };
-}
-
 // Rewrite Authorization: Bearer ... to x-authorization for Clerk callback route
 function rewriteAuthHeader(request) {
   var headers = request.headers;
@@ -61,8 +37,16 @@ function rewriteAuthHeader(request) {
 
 // Rewrite __session cookie to x-authorization: Bearer <token>
 function rewriteSessionCookie(request) {
-  var token = readSessionCookie(request.headers);
-  if (!token) return false;
-  request.headers["x-authorization"] = { value: `Bearer ${token}` };
+  var c = request.cookies.__session;
+  if (!c || !c.value) return false;
+  request.headers["x-authorization"] = { value: `Bearer ${c.value}` };
   return true;
+}
+
+function unauthorized() {
+  return {
+    statusCode: 401,
+    statusDescription: "Unauthorized",
+    headers: { "www-authenticate": { value: "Bearer" } },
+  };
 }
