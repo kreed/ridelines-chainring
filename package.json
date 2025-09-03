@@ -15,7 +15,8 @@
     "dev": "tsx watch -r dotenv/config scripts/dev-server.ts",
     "postinstall": "openapi-typescript extern/intervals-openapi.json -o src/generated/intervals-types.ts || echo ''",
     "build": "tsdown",
-    "test": "node --test",
+    "test": "OPENSSL_CONF=./openssl_legacy.cnf vitest --run",
+    "test:watch": "OPENSSL_CONF=./openssl_legacy.cnf vitest",
     "type-check": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome check --fix .",
@@ -26,6 +27,7 @@
     "@aws-lambda-powertools/metrics": "^2.25.2",
     "@aws-lambda-powertools/tracer": "^2.25.2",
     "@aws-sdk/client-dynamodb": "^3.490.0",
+    "@aws-sdk/cloudfront-signer": "^3.873.0",
     "@aws-sdk/lib-dynamodb": "^3.490.0",
     "@clerk/backend": "^2.10.1",
     "@middy/core": "^6.4.4",
@@ -42,7 +44,8 @@
     "openapi-typescript": "^7.9.1",
     "tsdown": "^0.14.2",
     "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
   },
   "keywords": [
     "ridelines",

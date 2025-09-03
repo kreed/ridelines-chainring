@@ -150,7 +150,7 @@ chainring/
 
 ### User Management
 
-- **`user`** - Get user information
+- **`user.pmtiles`** - Get a signed pmtiles url that is valid for 24 hrs
 
 ### Activity Sync
 

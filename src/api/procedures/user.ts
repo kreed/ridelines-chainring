@@ -1,41 +1,23 @@
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
-import { dynamodb } from "../../clients/aws";
+import { getSignedUrl } from "@aws-sdk/cloudfront-signer";
 import { env } from "../../types/env";
 import { procedure } from ".";
 
-export const UserSchema = z.object({
-  id: z.string(),
-  athlete_id: z.string(),
-  name: z.string().nullable(),
-  email: z.string().nullable(),
-  pmtiles_url: z.string(),
-  created_at: z.string(),
-  updated_at: z.string(),
-  last_login: z.string(),
+export const pmtiles = procedure.query(async ({ ctx: { userId } }) => {
+  if (!userId) throw new Error("Missing user id");
+  const resourcePath = `/activities/${userId}.pmtiles`;
+  const resourceUrl = `https://${env.DOMAIN}${resourcePath}`;
+  const dateLessThan = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+  const signedUrl = getSignedUrl({
+    url: resourceUrl,
+    keyPairId: env.CLOUDFRONT_KEY_PAIR_ID,
+    dateLessThan,
+    privateKey: env.CLOUDFRONT_PRIVATE_KEY,
+  });
+
+  return signedUrl;
 });
-export type User = z.infer<typeof UserSchema>;
 
-export const user = procedure.output(UserSchema).query(async ({ ctx: { userId } }) => {
-  const result = await dynamodb.send(
-    new GetCommand({
-      TableName: env.USERS_TABLE_NAME,
-      Key: { id: userId },
-    }),
-  );
-
-  if (!result.Item) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "User not found",
-    });
-  }
-
-  const pmtiles_url = "https://ridelines.xyz";
-
-  return {
-    ...result.Item,
-    pmtiles_url,
-  } as User;
-});
+export const user = {
+  pmtiles,
+};
