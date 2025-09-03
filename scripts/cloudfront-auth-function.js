@@ -12,15 +12,9 @@ export function handler(event) {
   var request = event.request;
   var uri = request.uri || "/";
 
-  if (/^\/trpc\/intervals\.oauth\.userInfo/.test(uri)) {
-    if (!rewriteAuthHeader(request)) {
-      return unauthorized();
-    }
-  } else {
-    if (!rewriteSessionCookie(request)) {
-      return unauthorized();
-    }
-  }
+  var needsAuthHeader = /^\/trpc\/intervals\.oauth\.userInfo/.test(uri);
+  var ok = needsAuthHeader ? rewriteAuthHeader(request) : rewriteSessionCookie(request);
+  if (!ok) return unauthorized();
 
   // Strip /trpc prefix
   request.uri = uri.replace(/^\/trpc/, "");
