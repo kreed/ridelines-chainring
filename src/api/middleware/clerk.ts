@@ -26,7 +26,7 @@ export const clerkMiddleware = createMiddleware(async ({ ctx, next }) => {
 
   const result = await clerkClient.authenticateRequest(req, {
     jwtKey: env.CLERK_JWT_KEY,
-    authorizedParties: [origin],
+    authorizedParties: [origin, "http://localhost:5173"],
   });
 
   if (!result.isAuthenticated) {
