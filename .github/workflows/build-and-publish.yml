@@ -113,6 +113,7 @@ jobs:
           cat > Dockerfile.lambda << 'EOF'
           FROM scratch
           COPY chainring-lambda.zip /chainring-lambda-package.zip
+          COPY scripts/cloudfront-auth-function.js /cloudfront-auth-function.js
           EOF
 
       - name: Log in to Container Registry

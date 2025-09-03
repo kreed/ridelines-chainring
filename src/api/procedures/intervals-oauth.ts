@@ -10,16 +10,7 @@ const userInfo = publicProcedure.query(async ({ ctx }) => {
     });
   }
 
-  // Extract Bearer token
-  const accessToken = ctx.authHeader.replace(/^Bearer\s+/i, "");
-  if (!accessToken || accessToken === ctx.authHeader) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "Authorization header must start with 'Bearer '",
-    });
-  }
-
-  const intervalsClient = createIntervalsClient(accessToken);
+  const intervalsClient = createIntervalsClient(ctx.authHeader);
 
   // Fetch user profile from intervals.icu
   const { data: profileResponse, error } = await intervalsClient.GET("/api/v1/athlete/{id}/profile", {
