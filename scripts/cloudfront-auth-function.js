@@ -1,4 +1,3 @@
-// biome-ignore-all lint/complexity/useOptionalChain: cloudfront functions are ES5.1
 /**
  * CloudFront Function for auth and routing
  *
@@ -8,7 +7,9 @@
  * - /trpc/* (others): Pass the __session cookie as x-authorization header
  * - For both: removes /trpc prefix from path
  */
-export function handler(event) {
+// biome-ignore-all lint/complexity/useOptionalChain: cloudfront functions are ES5.1
+// biome-ignore lint/correctness/noUnusedVariables: it's the entry point
+function handler(event) {
   var request = event.request;
   var uri = request.uri || "/";
 
