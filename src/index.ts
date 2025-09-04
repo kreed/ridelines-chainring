@@ -26,10 +26,16 @@ export const createContext = async ({
 const trpcHandler: Handler = awsLambdaRequestHandler({ router, createContext });
 
 const customHandler: Handler = async (event, context) => {
-  const response = await trpcHandler(event, context);
+  // Strip /trpc prefix from the path before passing to tRPC handler
+  const modifiedEvent = {
+    ...event,
+    rawPath: event.rawPath.replace(/^\/trpc/, "") || "/",
+  };
+
+  const response = await trpcHandler(modifiedEvent, context);
 
   // Clerk expects a flat object containing all the user info
-  if (event.rawPath === "/intervals.oauth.userInfo" && response.body) {
+  if (modifiedEvent.rawPath === "/intervals.oauth.userInfo" && response.body) {
     const parsed = JSON.parse(response.body);
     if (parsed.result?.data) {
       response.body = JSON.stringify(parsed.result.data);

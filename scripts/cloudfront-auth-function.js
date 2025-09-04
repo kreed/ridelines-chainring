@@ -1,11 +1,10 @@
 /**
- * CloudFront Function for auth and routing
+ * CloudFront Function for auth
  *
  * Behaviors:
  * - /trpc/intervals.oauth.userInfo: rewrites Authorization header to x-authorization (cloudfront
  *   strips Authorization from the origin request).
  * - /trpc/* (others): Pass the __session cookie as x-authorization header
- * - For both: removes /trpc prefix from path
  */
 // biome-ignore-all lint/complexity/useOptionalChain: cloudfront functions are ES5.1
 // biome-ignore lint/correctness/noUnusedVariables: it's the entry point
@@ -17,9 +16,6 @@ function handler(event) {
   var ok = needsAuthHeader ? rewriteAuthHeader(request) : rewriteSessionCookie(request);
   if (!ok) return unauthorized();
 
-  // Strip /trpc prefix
-  request.uri = uri.replace(/^\/trpc/, "");
-  if (!request.uri.startsWith("/")) request.uri = `/${request.uri}`;
   return request;
 }
 
