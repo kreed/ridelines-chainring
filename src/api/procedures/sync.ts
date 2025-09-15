@@ -106,49 +106,74 @@ export const syncHistory = procedure
     return result.Items.map((item) => syncStatusRecordSchema.parse(unmarshall(item)));
   });
 
-export const syncTrigger = procedure.mutation(async ({ ctx: { userId } }) => {
-  const syncId = `${Date.now()}-${crypto.randomUUID()}`;
-  const now = new Date().toISOString();
+export const syncTrigger = procedure
+  .input(z.object({ onboarding: z.boolean().optional() }))
+  .mutation(async ({ ctx: { userId }, input }) => {
+    // If onboarding flag is set, check if user has ever synced before
+    if (input.onboarding) {
+      const existingSync = await dynamodb.send(
+        new QueryCommand({
+          TableName: config.syncStatusTable,
+          KeyConditionExpression: "userId = :userId",
+          ExpressionAttributeValues: {
+            ":userId": { S: userId },
+          },
+          Limit: 1,
+        }),
+      );
 
-  // Create initial sync status record
-  const syncStatusRecord = {
-    userId,
-    syncId,
-    status: "queued",
-    requestedAt: now,
-  };
+      if (existingSync.Items && existingSync.Items.length > 0) {
+        // User has synced before, skip this sync
+        return {
+          success: true,
+          message: "User has already synced, skipping onboarding sync",
+          skipped: true,
+        };
+      }
+    }
 
-  // Write to DynamoDB
-  await dynamodb.send(
-    new PutCommand({
-      TableName: config.syncStatusTable,
-      Item: syncStatusRecord,
-    }),
-  );
+    const syncId = `${Date.now()}-${crypto.randomUUID()}`;
+    const now = new Date().toISOString();
 
-  // Send message to SQS
-  const message = {
-    userId,
-    syncId,
-    timestamp: now,
-  };
+    // Create initial sync status record
+    const syncStatusRecord = {
+      userId,
+      syncId,
+      status: "queued",
+      requestedAt: now,
+    };
 
-  const command = new SendMessageCommand({
-    QueueUrl: config.syncRequestsQueue,
-    MessageBody: JSON.stringify(message),
-    MessageAttributes: {
-      userId: {
-        DataType: "String",
-        StringValue: userId,
+    // Write to DynamoDB
+    await dynamodb.send(
+      new PutCommand({
+        TableName: config.syncStatusTable,
+        Item: syncStatusRecord,
+      }),
+    );
+
+    // Send message to SQS
+    const message = {
+      userId,
+      syncId,
+      timestamp: now,
+    };
+
+    const command = new SendMessageCommand({
+      QueueUrl: config.syncRequestsQueue,
+      MessageBody: JSON.stringify(message),
+      MessageAttributes: {
+        userId: {
+          DataType: "String",
+          StringValue: userId,
+        },
       },
-    },
+    });
+
+    await sqs.send(command);
+
+    return {
+      success: true,
+      message: "Sync request queued",
+      syncId,
+    };
   });
-
-  await sqs.send(command);
-
-  return {
-    success: true,
-    message: "Sync request queued",
-    syncId,
-  };
-});
