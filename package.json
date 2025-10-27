@@ -40,7 +40,7 @@
     "@biomejs/biome": "^2.2.3",
     "@tsconfig/node22": "^22.0.2",
     "@types/aws-lambda": "^8.10.152",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.9.1",
     "dotenv": "^17.2.2",
     "openapi-typescript": "^7.9.1",
     "tsdown": "^0.15.5",
