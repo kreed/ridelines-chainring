@@ -76,7 +76,7 @@ jobs:
           echo "Chainring commit SHA: ${COMMIT_SHA}"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lambda-artifacts
           path: .
@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: lambda-artifacts
           path: .
@@ -183,7 +183,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: lambda-artifacts
           path: .
