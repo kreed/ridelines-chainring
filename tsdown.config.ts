@@ -13,6 +13,7 @@ export default defineConfig({
   minify: true,
   // Bundle everything except @aws-sdk/* which is provided by the Lambda runtime
   noExternal: /^(?!@aws-sdk\/).*/,
+  inlineOnly: false,
   env: {
     NODE_ENV: "production",
   },

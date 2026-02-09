@@ -2,6 +2,7 @@
   "name": "@kreed/ridelines-chainring",
   "version": "1.0.0",
   "description": "backend API for ridelines.xyz - map for all your intervals.icu activities",
+  "type": "module",
   "main": "dist/index.mjs",
   "types": "src/types.ts",
   "repository": {
@@ -31,9 +32,9 @@
     "@aws-sdk/cloudfront-signer": "^3.946.0",
     "@aws-sdk/lib-dynamodb": "^3.946.0",
     "@clerk/backend": "^2.25.1",
-    "@middy/core": "^6.4.5",
+    "@middy/core": "^7.0.0",
     "@trpc/server": "^11",
-    "openapi-fetch": "^0.15.0",
+    "openapi-fetch": "^0.16.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {
@@ -43,7 +44,7 @@
     "@types/node": "^25.0.3",
     "dotenv": "^17.2.3",
     "openapi-typescript": "^7.10.1",
-    "tsdown": "^0.17.1",
+    "tsdown": "^0.20.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
